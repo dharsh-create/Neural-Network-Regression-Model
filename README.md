@@ -49,63 +49,108 @@ Evaluate the model with the testing data.
 ### Name: Dharshini V
 ### Register Number: 212223040038
 ```python
-class Neuralnet(nn.Module):
-   def __init__(self):
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
+
+# Load Dataset
+dataset1 = pd.read_csv('ex1.csv')
+print(dataset1.head(10))
+X = dataset1[['x']].values
+y = dataset1[['y']].values
+
+# Train-Test Split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.33, random_state=33
+)
+# Scaling
+scaler = MinMaxScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Convert to Tensors
+X_train_tensor = torch.tensor(X_train, dtype=torch.float32)
+y_train_tensor = torch.tensor(y_train, dtype=torch.float32)
+X_test_tensor = torch.tensor(X_test, dtype=torch.float32)
+y_test_tensor = torch.tensor(y_test, dtype=torch.float32)
+# Neural Network Model
+class NeuralNet(nn.Module):
+    def __init__(self):
         super().__init__()
-        self.n1=nn.Linear(1,10)
-        self.n2=nn.Linear(10,20)
-        self.n3=nn.Linear(20,1)
-        self.relu=nn.ReLU()
-        self.history={'loss': []}
-   def forward(self,x):
-        x=self.relu(self.n1(x))
-        x=self.relu(self.n2(x))
-        x=self.n3(x)
+        self.fc1 = nn.Linear(1, 8)
+        self.fc2 = nn.Linear(8, 10)
+        self.fc3 = nn.Linear(10, 1)
+        self.relu = nn.ReLU()
+        self.history = {'loss': []}
+
+    def forward(self, x):
+        x = self.relu(self.fc1(x))
+        x = self.relu(self.fc2(x))
+        x = self.fc3(x) # Removed ReLU from the final output layer
         return x
 
-
-# Initialize the Model, Loss Function, and Optimizer
-nithi=NeuralNet()
+# Initialize Model, Loss and Optimizer
+ai_brain = NeuralNet()
 criterion = nn.MSELoss()
-optimizer = optim.RMSprop(nithi.parameters(),lr=0.001)
+optimizer = optim.RMSprop(ai_brain.parameters(), lr=0.001)
 
-def train_model(nithi, X_train, y_train, criterion, optimizer, epochs=1000):
-    # initialize history before loop
-    nithi.history = {'loss': []}
-
+# Training Function
+def train_model(ai_brain, X_train, y_train, criterion, optimizer, epochs=2000):
     for epoch in range(epochs):
         optimizer.zero_grad()
-        outputs = nithi(X_train)
-        loss = criterion(outputs, y_train)
+        loss = criterion(ai_brain(X_train), y_train)
         loss.backward()
         optimizer.step()
-
-        # record loss
-        nithi.history['loss'].append(loss.item())
+        ai_brain.history['loss'].append(loss.item())
 
         if epoch % 200 == 0:
-            print(f'Epoch [{epoch}/{epochs}], Loss: {loss.item():.6f}')
+            print(f"Epoch [{epoch}/{epochs}], Loss: {loss:.6f}")
+
+# Train the Model
+train_model(ai_brain, X_train_tensor, y_train_tensor, criterion, optimizer)
+
+# Test Evaluation
+with torch.no_grad():
+    test_loss = criterion(ai_brain(X_test_tensor), y_test_tensor)
+    print(f"Test Loss: {test_loss.item():.6f}")
+print(" NAME: KIRUTHIGA.B")
+print("REG.NO: 212224040160")
+# Plot Loss
+loss_df = pd.DataFrame(ai_brain.history)
+loss_df.plot()
+plt.xlabel("Epochs")
+plt.ylabel("Loss")
+plt.title("Training Loss vs Epochs")
+plt.show()
+
+# New Sample Prediction
+X_new = torch.tensor([[9]], dtype=torch.float32)
+X_new_scaled = torch.tensor(scaler.transform(X_new), dtype=torch.float32)
+
+prediction = ai_brain(X_new_scaled).item()
+print(f"Predicted Spending Score: {prediction}")
+
 
 
 ```
 ## Dataset Information
+<img width="957" height="791" alt="Screenshot (10)" src="https://github.com/user-attachments/assets/bf56b335-4843-4d9d-bd0c-71d9af2948eb" />
 
-<img width="191" height="529" alt="image" src="https://github.com/user-attachments/assets/1cb9e9e8-6c25-402f-8e80-bd74f74f2c58" />
 
 ## OUTPUT
-<img width="480" height="125" alt="image" src="https://github.com/user-attachments/assets/473153db-4ac6-4de3-94ba-7f769372f2f6" />
+<img width="678" height="649" alt="Screenshot (11)" src="https://github.com/user-attachments/assets/ae6b5fef-bfc8-4d89-aae6-3e445af34e37" />
+
 
 ### Training Loss Vs Iteration Plot
-
-<img width="1011" height="615" alt="image" src="https://github.com/user-attachments/assets/cd8b63a0-448e-4505-92ac-82df4293d2eb" />
+<img width="772" height="629" alt="Screenshot (12)" src="https://github.com/user-attachments/assets/43207bf1-ea22-4e1e-8efc-148b5f91eaf2" />
 
 ### New Sample Data Prediction
-```
-X_n1_1 = torch.tensor([[9]], dtype=torch.float32)
-prediction = nithi(torch.tensor(scaler.transform(X_n1_1), dtype=torch.float32)).item()
-print(f'Prediction: {prediction}')
-```
-<img width="912" height="52" alt="image" src="https://github.com/user-attachments/assets/6e904fcc-409c-43bf-ae28-064e3c41a6d5" />
+<img width="1306" height="82" alt="Screenshot (13)" src="https://github.com/user-attachments/assets/64d8293a-204f-4f99-9f9f-5f059bb09ed3" />
+
 
 ## RESULT
 
