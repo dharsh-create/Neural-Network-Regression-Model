@@ -117,8 +117,8 @@ train_model(ai_brain, X_train_tensor, y_train_tensor, criterion, optimizer)
 with torch.no_grad():
     test_loss = criterion(ai_brain(X_test_tensor), y_test_tensor)
     print(f"Test Loss: {test_loss.item():.6f}")
-print(" NAME: KIRUTHIGA.B")
-print("REG.NO: 212224040160")
+print(" NAME: Dharshini V")
+print("REG.NO: 212223040038")
 # Plot Loss
 loss_df = pd.DataFrame(ai_brain.history)
 loss_df.plot()
